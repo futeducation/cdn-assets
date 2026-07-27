@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fe Preloader</title>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body { font-family: system-ui, sans-serif; background: #fff; }
+
+  /* ---------- overlay ---------- */
+  #preloader {
+    position: fixed; inset: 0; z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    background: #fff;
+    transition: opacity .35s ease;
+  }
+  #preloader.fe-hide { opacity: 0; pointer-events: none; }
+
+  /* ---------- loader ---------- */
+  .fe-loader {
+    --size: 252px;        /* resize everything from here */
+    --grey: #535353;
+    --red:  #b11f20;
+    --bg:   #fff;         /* must match the surface behind the loader */
+
+    position: relative;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--grey);
+  }
+
+  /* the whole logo composition sits 2% right / 1.2% down of the disc centre */
+  .fe-inner {
+    position: absolute; inset: 0;
+    transform: translate(1.98%, 1.19%);
+  }
+
+  /* rotor turns about the composition centre */
+  .fe-rotor {
+    position: absolute; inset: 0;
+    animation: fe-spin 4s cubic-bezier(.5, .175, .5, .825) infinite;
+  }
+
+  /* the slot: a straight band 27.3% of the diameter wide, crossing the centre.
+     NOT a wedge - its two edges are parallel lines, so the notch gets wider
+     towards the middle of the disc, not narrower. */
+  .fe-slot {
+    position: absolute;
+    left: -50%;
+    width: 200%;
+    top: 36.35%;
+    height: 27.3%;
+    background: var(--bg);
+  }
+
+  /* red Fe badge, 65.9% of the disc, bobbing vertically, clipped by the circle */
+  .fe-badge {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 65.9%; height: 65.9%;
+    margin: -32.95% 0 0 -32.95%;
+    background: var(--red);
+    display: flex; align-items: center; justify-content: center;
+    animation: fe-bob .5s cubic-bezier(.4, .25, .6, .75) infinite alternate;
+  }
+  .fe-badge span {
+    font-family: Georgia, "Times New Roman", Times, serif;
+    font-size: calc(var(--size) * .476);
+    line-height: 1;
+    color: #fefefe;
+    transform: translateY(.02em);
+  }
+
+  /* 360deg every 4s, starting at the gif's 135deg, slow at the ends */
+  @keyframes fe-spin {
+    from { transform: rotate(135deg); }
+    to   { transform: rotate(495deg); }
+  }
+  /* +/- 16.27% of the diameter, 1s per full bob */
+  @keyframes fe-bob {
+    from { transform: translateY(calc(var(--size) * -.1627)); }
+    to   { transform: translateY(calc(var(--size) *  .1627)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fe-rotor, .fe-badge { animation: none; }
+  }
+
+  .demo { max-width: 640px; margin: 12vh auto; padding: 0 24px; color: #333; }
+</style>
+</head>
+<body>
+
+  <div id="preloader">
+    <div class="fe-loader">
+      <div class="fe-inner">
+        <div class="fe-rotor"><div class="fe-slot"></div></div>
+        <div class="fe-badge"><span>Fe</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo">
+    <h1>Page content</h1>
+    <p>The preloader covers this for two seconds, then fades away.</p>
+  </div>
+
+  <script>
+    (function () {
+      var HOLD = 2000;
+      var el = document.getElementById('preloader');
+      var start = Date.now();
+      function dismiss() {
+        setTimeout(function () {
+          el.classList.add('fe-hide');
+          setTimeout(function () { el.style.display = 'none'; }, 350);
+        }, Math.max(0, HOLD - (Date.now() - start)));
+      }
+      if (document.readyState === 'complete') dismiss();
+      else window.addEventListener('load', dismiss);
+    })();
+  </script>
+
+</body>
+</html>
